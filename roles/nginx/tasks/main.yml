@@ -1,0 +1,45 @@
+---
+# some other stuff to do: 
+# symlink to sites-enabled
+# change directory ownership and permissions
+- name: install nginx and certbot
+  apt: name={{ item }} state=latest
+  with_items:
+    - nginx
+    - letsencrypt
+
+- name: copy nginx config
+  template: src=nginx.conf dest=/etc/nginx/nginx.conf
+
+- name: monty20python_com_conf
+  template: src=monty20python.com.conf dest=/etc/nginx/sites-available/monty20python.com.conf
+
+- name: make dir monty20python.com
+  file: path=/var/www/monty20python.com/html/ state=directory
+
+- name: sync monty20python_com website files
+  synchronize: src=/Users/monty20python/Websites/blog/_site/ dest=/var/www/monty20python.com/html 
+
+- name: monty20python.com log dir
+  file: path=/var/log/www/monty20python.com/logs/ state=directory
+
+- name: make dh params
+  command: /usr/bin/openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+
+- name: delete default in sites avalible
+  file: path=/etc/nginx/sites-avalible/default state=absent
+
+- name: make sure symlink is deleted in sites enabled
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: take monty20python.com live
+  file: src=/etc/nginx/sites-available/monty20python.com.conf dest=/etc/nginx/sites-enabled/monty20python.com.conf state=link
+
+- name: stop nginx
+  service: name=nginx state=stopped
+
+- name: run certbot
+  command: /usr/bin/letsencrypt certonly -m email@email.com --agree-tos --rsa-key-size 4096 --standalone -d example.com -d www.example.com
+
+- name: start nginx
+  service: name=nginx state=started enabled=yes

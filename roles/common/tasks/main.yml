@@ -1,0 +1,17 @@
+---
+- name: update and upgrade
+  apt: upgrade=dist update_cache=yes
+
+- name: install tmux, vim, weechat, git, openvpn, easyrsa
+  apt: name={{ item }} state=latest
+  with_items:
+    - tmux
+    - vim
+    - weechat
+    - git
+    - openvpn
+    - easy-rsa
+
+- name: user create
+  user: name=some_username shell=/bin/bash group=sudo
+

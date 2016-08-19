@@ -1,0 +1,8 @@
+---
+# add methods to set up pki and copy config files
+- name: check for forwarding sysctl
+  lineinfile: dest=/etc/sysctl.conf regexp='^#net.ipv4.ip_forward=1' line='net.ipv4.ip_forward=1'
+
+- name: enabled sysctl change
+  command: /sbin/sysctl -p
+

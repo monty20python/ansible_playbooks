@@ -1,0 +1,41 @@
+---
+# Download beats and stuff
+- name: get the elastic key
+  apt_key: url=https://packages.elastic.co/GPG-KEY-elasticsearch state=present
+
+- name: add elastic repo
+  apt_repository: repo='deb https://packages.elastic.co/beats/apt stable main' state=present
+
+- name: update apt
+  apt: update_cache=yes
+
+- name: install filebeat, packetbeat, topbeat
+  apt: name={{ item }} state=latest
+  with_items:
+    - filebeat
+    - packetbeat
+    - topbeat
+
+- name: makedir logstash cert
+  file: path=/etc/pki/tls/certs state=directory mode=644
+
+- name: copy logstash cert
+  copy: src=logstash-forwarder.crt dest=/etc/pki/tls/certs/ owner=root group=root mode=644
+
+- name: copy filebeat.yml
+  copy: src=filebeat.yml dest=/etc/filebeat/ owner=root group=root mode=644
+
+- name: copy packetbeat.yml
+  copy: src=packetbeat.yml dest=/etc/packetbeat/ owner=root group=root mode=644
+
+- name: copy topbeat.yml
+  copy: src=topbeat.yml dest=/etc/topbeat/ owner=root group=root mode=644
+
+- name: restart_filebeat
+  service: name=filebeat state=restarted enabled=yes
+
+- name: restart_packetbeat
+  service: name=packetbeat state=restarted enabled=yes
+
+- name: restart_topbeat
+  service: name=topbeat state=restarted enabled=yes
