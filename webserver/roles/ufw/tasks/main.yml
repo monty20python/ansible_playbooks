@@ -1,0 +1,19 @@
+---
+- name: install ufw
+  apt: name=ufw state=latest
+
+- name: enable ufw and log
+  ufw: state=enabled policy=deny logging=on
+
+- name: ufw http
+  ufw: rule=allow port=http
+
+- name: ufw https
+  ufw: rule=allow port=https
+
+- name: ufw ssh
+  ufw: rule=limit port=ssh proto=tcp
+
+- name: ufw openvpn
+  ufw: rule=allow port=1194 proto=udp
+  notify: restart ufw
